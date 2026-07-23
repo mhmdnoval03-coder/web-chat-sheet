@@ -5,190 +5,198 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Chat & Sheet Authentication</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .app-container {
-            width: 100%;
-            max-width: 420px;
-            padding: 20px;
-        }
-        .card {
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .card h2 {
-            margin-bottom: 20px;
-            color: #333;
-            text-align: center;
-        }
-        .input-group {
-            margin-bottom: 15px;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #666;
-            font-size: 14px;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        .input-group input:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-        .btn-primary {
-            width: 100%;
-            padding: 11px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-        .card-footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-        }
-        .card-footer a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .card-footer a:hover {
-            text-decoration: underline;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .app-container { width: 100%; max-width: 450px; padding: 20px; }
+        .card { background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .card h2 { margin-bottom: 20px; color: #333; text-align: center; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; color: #666; font-size: 14px; }
+        .input-group input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .input-group input:focus { border-color: #007bff; outline: none; }
+        .btn-primary { width: 100%; padding: 11px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 600; margin-top: 10px; }
+        .btn-primary:hover { background-color: #0056b3; }
+        .card-footer { margin-top: 20px; text-align: center; font-size: 14px; color: #666; }
+        .card-footer a { color: #007bff; text-decoration: none; font-weight: 600; }
+        .card-footer a:hover { text-decoration: underline; }
+        
+        /* Tampilan Ruang Chat */
+        #chatSection { display: none; }
+        .chat-box { height: 250px; border: 1px solid #ddd; border-radius: 6px; padding: 10px; overflow-y: scroll; margin-bottom: 15px; background: #fafafa; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
 
-        <!-- KARTU PENDAFTARAN (REGISTER) -->
+        <!-- 1. KARTU PENDAFTARAN (REGISTER) -->
         <div id="registerCard" class="card">
             <h2>Daftar Akun Baru</h2>
             <form id="registerForm" onsubmit="handleRegister(event)">
                 <div class="input-group">
-                    <label for="regUser">Username</label>
-                    <input type="text" id="regUser" name="username" placeholder="Masukkan username" required>
+                    <label>Username</label>
+                    <input type="text" name="username" placeholder="Masukkan username" required>
                 </div>
-                
                 <div class="input-group">
-                    <label for="regEmail">Email</label>
-                    <input type="email" id="regEmail" name="email" placeholder="Masukkan email" required>
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="Masukkan email" required>
                 </div>
-                
                 <div class="input-group">
-                    <label for="regPass">Password</label>
-                    <input type="password" id="regPass" name="password" placeholder="Buat password" required>
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Buat password" required>
                 </div>
-                
-                <button type="submit" class="btn-primary" id="submitBtn">Daftar Sekarang</button>
+                <input type="hidden" name="action" value="register">
+                <button type="submit" class="btn-primary" id="regBtn">Daftar Sekarang</button>
             </form>
-
             <div class="card-footer">
-                <span>Sudah punya akun? <a href="#" onclick="switchView('loginCard'); return false;">Masuk di sini</a></span>
+                <span>Sudah punya akun? <a href="#" onclick="switchView('loginCard')">Masuk di sini</a></span>
             </div>
         </div>
 
-        <!-- KARTU LOGIN (Opsional jika ingin dipakai nanti) -->
+        <!-- 2. KARTU MASUK (LOGIN) -->
         <div id="loginCard" class="card" style="display: none;">
             <h2>Masuk</h2>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="input-group">
-                    <label for="logEmail">Email</label>
-                    <input type="email" id="logEmail" name="email" placeholder="Masukkan email" required>
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="Masukkan email" required>
                 </div>
                 <div class="input-group">
-                    <label for="logPass">Password</label>
-                    <input type="password" id="logPass" name="password" placeholder="Masukkan password" required>
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Masukkan password" required>
                 </div>
-                <button type="submit" class="btn-primary">Masuk</button>
+                <input type="hidden" name="action" value="login">
+                <button type="submit" class="btn-primary" id="logBtn">Masuk</button>
             </form>
             <div class="card-footer">
-                <span>Belum punya akun? <a href="#" onclick="switchView('registerCard'); return false;">Daftar</a></span>
+                <span>Belum punya akun? <a href="#" onclick="switchView('registerCard')">Daftar</a></span>
+            </div>
+        </div>
+
+        <!-- 3. RUANG CHAT (DITAMPILKAN SETELAH LOGIN BERHASIL) -->
+        <div id="chatSection" class="card">
+            <h2>Ruang Chat</h2>
+            <p id="welcomeUser" style="margin-bottom: 15px; font-weight: 600; color: #555; text-align: center;"></p>
+            
+            <div class="input-group" style="margin-bottom: 10px;">
+                <label>Kirim pesan ke (Username Teman):</label>
+                <input type="text" id="targetFriend" placeholder="Cth: budi123">
+            </div>
+
+            <div class="chat-box" id="chatHistory">
+                <p style="color: #999; text-align: center; margin-top: 80px;">Belum ada pesan...</p>
+            </div>
+
+            <form onsubmit="sendMessage(event)" style="display: flex; gap: 5px;">
+                <input type="text" id="messageInput" placeholder="Ketik pesan..." required style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                <button type="submit" class="btn-primary" style="margin-top: 0; width: 80px;">Kirim</button>
+            </form>
+            
+            <div class="card-footer" style="margin-top: 15px;">
+                <a href="#" onclick="logout()" style="color: #dc3545;">Keluar (Logout)</a>
             </div>
         </div>
 
     </div>
 
     <script>
-        // Fungsi untuk mengganti tampilan antar kartu (Form Register <-> Login)
-        function switchView(cardId) {
+        // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
+        const scriptURL = 'https://script.google.com/macros/s/AKfycby9T8Y82PS5w9TijNj3rJfUfWG_USC4LQyRr1vn29agMjo-tHzCWfFbT2kTeZMPYTFs/exec';
+
+        // Fungsi Mengatur Tampilan Layar (View Switcher)
+        function switchView(cardName) {
             document.getElementById('registerCard').style.display = 'none';
             document.getElementById('loginCard').style.display = 'none';
-            document.getElementById(cardId).style.display = 'block';
+            document.getElementById('chatSection').style.display = 'none';
+            
+            if(cardName === 'registerCard') document.getElementById('registerCard').style.display = 'block';
+            if(cardName === 'loginCard') document.getElementById('loginCard').style.display = 'block';
+            if(cardName === 'chatSection') document.getElementById('chatSection').style.display = 'block';
         }
 
-        // Fungsi Menangani Pendaftaran dan Mengirim ke Google Apps Script
-        function handleRegister(event) {
-            event.preventDefault(); // Mencegah reload halaman secara bawaan
+        // Cek Sesi Saat Halaman Dimuat
+        window.onload = function() {
+            const savedUser = localStorage.getItem('chatUser');
+            if (savedUser) {
+                document.getElementById('welcomeUser').innerText = 'Halo, ' + savedUser + '!';
+                switchView('chatSection');
+            }
+        };
 
-            const btn = document.getElementById('submitBtn');
+        // Proses Pendaftaran Akun
+        function handleRegister(event) {
+            event.preventDefault();
+            const form = document.getElementById('registerForm');
+            const data = new URLSearchParams(new FormData(form));
+            const btn = document.getElementById('regBtn');
+            
             btn.innerText = 'Memproses...';
             btn.disabled = true;
 
-            const form = document.getElementById('registerForm');
-            const formData = new FormData(form);
-            
-            // Konversi data form agar bisa dibaca dengan lancar oleh Google Apps Script
-            const data = new URLSearchParams();
-            for (const pair of formData.entries()) {
-                data.append(pair[0], pair[1]);
-            }
-            data.append('action', 'register'); // Penanda aksi di Apps Script
-
-            // URL Endpoint Google Apps Script Anda yang terbaru
-            const scriptURL = 'https://script.google.com/macros/s/AKfycby9T8Y82PS5w9TijNj3rJfUfWG_USC4LQyRr1vn29agMjo-tHzCWfFbT2kTeZMPYTFs/exec';
-
-            fetch(scriptURL, {
-                method: 'POST',
-                body: data
-            })
-            .then(response => response.text())
+            fetch(scriptURL, { method: 'POST', body: data })
+            .then(res => res.json())
             .then(result => {
-                alert('Pendaftaran Berhasil! Silakan masuk.');
-                form.reset();
-                switchView('loginCard'); // Pindah otomatis ke halaman login
+                alert(result.message);
+                if(result.status === 'success') {
+                    form.reset();
+                    switchView('loginCard');
+                }
             })
-            .catch(error => {
-                console.error('Error!', error);
-                alert('Terjadi kesalahan saat mendaftar. Coba beberapa saat lagi.');
-            })
+            .catch(err => alert('Terjadi kesalahan jaringan.'))
             .finally(() => {
                 btn.innerText = 'Daftar Sekarang';
                 btn.disabled = false;
             });
         }
 
+        // Proses Masuk (Login)
         function handleLogin(event) {
             event.preventDefault();
-            alert('Fitur login akan segera dihubungkan.');
+            const form = document.getElementById('loginForm');
+            const data = new URLSearchParams(new FormData(form));
+            const btn = document.getElementById('logBtn');
+            
+            btn.innerText = 'Masuk...';
+            btn.disabled = true;
+
+            fetch(scriptURL, { method: 'POST', body: data })
+            .then(res => res.json())
+            .then(response => {
+                if(response.status === 'success') {
+                    localStorage.setItem('chatUser', response.username);
+                    document.getElementById('welcomeUser').innerText = 'Halo, ' + response.username + '!';
+                    form.reset();
+                    switchView('chatSection');
+                } else {
+                    alert('Login Gagal: ' + response.message);
+                }
+            })
+            .catch(err => alert('Terjadi kesalahan koneksi ke server.'))
+            .finally(() => {
+                btn.innerText = 'Masuk';
+                btn.disabled = false;
+            });
+        }
+
+        // Keluar (Logout)
+        function logout() {
+            localStorage.removeItem('chatUser');
+            switchView('loginCard');
+        }
+
+        // Kirim Pesan (Placeholder Aksi Chat)
+        function sendMessage(event) {
+            event.preventDefault();
+            const target = document.getElementById('targetFriend').value;
+            const msg = document.getElementById('messageInput').value;
+
+            if(!target) {
+                alert('Tulis username teman tujuan terlebih dahulu!');
+                return;
+            }
+
+            alert('Pesan berhasil dikirim ke ' + target + ': ' + msg);
+            document.getElementById('messageInput').value = '';
         }
     </script>
 </body>
