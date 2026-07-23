@@ -6,23 +6,53 @@
     <title>Web Chat & Sheet Authentication</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        /* Tema Background Gradasi Modern */
+        body { 
+            background: linear-gradient(135deg, #1f4068, #162447, #1b1b2f);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            color: #333;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .app-container { width: 100%; max-width: 450px; padding: 20px; }
-        .card { background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-        .card h2 { margin-bottom: 20px; color: #333; text-align: center; }
+        
+        /* Efek Kaca (Glassmorphism) pada Card */
+        .card { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px);
+            padding: 30px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); 
+        }
+        
+        .card h2 { margin-bottom: 20px; color: #162447; text-align: center; font-weight: 700; }
+        
         .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 5px; color: #666; font-size: 14px; }
-        .input-group input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-        .input-group input:focus { border-color: #007bff; outline: none; }
-        .btn-primary { width: 100%; padding: 11px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 600; margin-top: 10px; }
-        .btn-primary:hover { background-color: #0056b3; }
-        .card-footer { margin-top: 20px; text-align: center; font-size: 14px; color: #666; }
-        .card-footer a { color: #007bff; text-decoration: none; font-weight: 600; }
+        .input-group label { display: block; margin-bottom: 6px; color: #4a5568; font-size: 13px; font-weight: 600; }
+        .input-group input { width: 100%; padding: 11px 14px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; transition: all 0.3s; }
+        .input-group input:focus { border-color: #3182ce; box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15); outline: none; }
+        
+        .btn-primary { width: 100%; padding: 12px; background-color: #3182ce; color: white; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: 600; margin-top: 10px; transition: background 0.2s; }
+        .btn-primary:hover { background-color: #2b6cb0; }
+        
+        .card-footer { margin-top: 20px; text-align: center; font-size: 14px; color: #718096; }
+        .card-footer a { color: #3182ce; text-decoration: none; font-weight: 600; }
         .card-footer a:hover { text-decoration: underline; }
         
         /* Tampilan Ruang Chat */
         #chatSection { display: none; }
-        .chat-box { height: 250px; border: 1px solid #ddd; border-radius: 6px; padding: 10px; overflow-y: scroll; margin-bottom: 15px; background: #fafafa; }
+        .chat-box { height: 260px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; overflow-y: scroll; margin-bottom: 15px; background: #f7fafc; }
     </style>
 </head>
 <body>
@@ -73,10 +103,10 @@
             </div>
         </div>
 
-        <!-- 3. RUANG CHAT (DITAMPILKAN SETELAH LOGIN BERHASIL) -->
+        <!-- 3. RUANG CHAT -->
         <div id="chatSection" class="card">
             <h2>Ruang Chat</h2>
-            <p id="welcomeUser" style="margin-bottom: 15px; font-weight: 600; color: #555; text-align: center;"></p>
+            <p id="welcomeUser" style="margin-bottom: 15px; font-weight: 600; color: #2d3748; text-align: center;"></p>
             
             <div class="input-group" style="margin-bottom: 10px;">
                 <label>Kirim pesan ke (Username Teman):</label>
@@ -84,26 +114,24 @@
             </div>
 
             <div class="chat-box" id="chatHistory">
-                <p style="color: #999; text-align: center; margin-top: 80px;">Belum ada pesan...</p>
+                <p style="color: #a0aec0; text-align: center; margin-top: 90px;">Belum ada pesan...</p>
             </div>
 
-            <form onsubmit="sendMessage(event)" style="display: flex; gap: 5px;">
-                <input type="text" id="messageInput" placeholder="Ketik pesan..." required style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+            <form onsubmit="sendMessage(event)" style="display: flex; gap: 8px;">
+                <input type="text" id="messageInput" placeholder="Ketik pesan..." required style="flex: 1; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px;">
                 <button type="submit" class="btn-primary" style="margin-top: 0; width: 80px;">Kirim</button>
             </form>
             
             <div class="card-footer" style="margin-top: 15px;">
-                <a href="#" onclick="logout()" style="color: #dc3545;">Keluar (Logout)</a>
+                <a href="#" onclick="logout()" style="color: #e53e3e;">Keluar (Logout)</a>
             </div>
         </div>
 
     </div>
 
     <script>
-        // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
         const scriptURL = 'https://script.google.com/macros/s/AKfycby9T8Y82PS5w9TijNj3rJfUfWG_USC4LQyRr1vn29agMjo-tHzCWfFbT2kTeZMPYTFs/exec';
 
-        // Fungsi Mengatur Tampilan Layar (View Switcher)
         function switchView(cardName) {
             document.getElementById('registerCard').style.display = 'none';
             document.getElementById('loginCard').style.display = 'none';
@@ -114,7 +142,6 @@
             if(cardName === 'chatSection') document.getElementById('chatSection').style.display = 'block';
         }
 
-        // Cek Sesi Saat Halaman Dimuat
         window.onload = function() {
             const savedUser = localStorage.getItem('chatUser');
             if (savedUser) {
@@ -123,7 +150,6 @@
             }
         };
 
-        // Proses Pendaftaran Akun
         function handleRegister(event) {
             event.preventDefault();
             const form = document.getElementById('registerForm');
@@ -149,7 +175,6 @@
             });
         }
 
-        // Proses Masuk (Login)
         function handleLogin(event) {
             event.preventDefault();
             const form = document.getElementById('loginForm');
@@ -178,13 +203,11 @@
             });
         }
 
-        // Keluar (Logout)
         function logout() {
             localStorage.removeItem('chatUser');
             switchView('loginCard');
         }
 
-        // Kirim Pesan (Placeholder Aksi Chat)
         function sendMessage(event) {
             event.preventDefault();
             const target = document.getElementById('targetFriend').value;
