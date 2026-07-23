@@ -3,474 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Web Chat - Google Sheets</title>
-    <!-- Google Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <title>Web Chat & Sheet Authentication</title>
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: #f3f4f6; height: 100vh; display: flex; justify-content: center; align-items: center; color: var(--text-main); }
-
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
         .app-container {
             width: 100%;
-            max-width: 450px;
-            height: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+        .card {
             background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            overflow: hidden;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-
-        @media (min-width: 768px) {
-            .app-container {
-                height: 85vh;
-                max-height: 750px;
-                border-radius: 20px;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            }
-        }
-
-        .auth-screen {
-            flex: 1;
-            padding: 40px 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background: #ffffff;
-            overflow-y: auto;
-        }
-
-        .auth-header {
+        .card h2 {
+            margin-bottom: 20px;
+            color: #333;
             text-align: center;
-            margin-bottom: 30px;
         }
-
-        .auth-header .logo-icon {
-            width: 60px;
-            height: 60px;
-            background: var(--bg-gradient);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            margin: 0 auto 15px;
-            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
-        }
-
-        .auth-header h2 { font-size: 24px; font-weight: 700; color: var(--text-main); }
-        .auth-header p { font-size: 14px; color: var(--text-muted); margin-top: 5px; }
-
         .input-group {
-            margin-bottom: 18px;
+            margin-bottom: 15px;
         }
-
-        .input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #4b5563; }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+        }
         .input-group input {
             width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
             font-size: 14px;
-            outline: none;
-            transition: all 0.3s;
         }
-        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
-
+        .input-group input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
         .btn-primary {
             width: 100%;
-            padding: 12px;
-            background: var(--bg-gradient);
+            padding: 11px;
+            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
+            border-radius: 6px;
+            font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-            transition: opacity 0.2s, transform 0.1s;
+            font-weight: 600;
+            margin-top: 10px;
         }
-        .btn-primary:active { transform: scale(0.98); }
-        .btn-primary:hover { opacity: 0.9; }
-
-        .auth-footer {
-            text-align: center;
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .card-footer {
             margin-top: 20px;
+            text-align: center;
             font-size: 14px;
-            color: var(--text-muted);
+            color: #666;
         }
-        .auth-footer span { color: var(--primary); font-weight: 600; cursor: pointer; }
-        .auth-footer span:hover { text-decoration: underline; }
-
-        #chatSection {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            background: #f8fafc;
+        .card-footer a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 600;
         }
-
-        .chat-header {
-            background: white;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
+        .card-footer a:hover {
+            text-decoration: underline;
         }
-
-        .user-profile { display: flex; align-items: center; gap: 12px; }
-        .avatar {
-            width: 40px; height: 40px; background: var(--bg-gradient); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;
-        }
-        .user-info h4 { font-size: 15px; font-weight: 600; }
-        .user-info p { font-size: 12px; color: #10b981; display: flex; align-items: center; gap: 4px; }
-        .user-info p::before { content: ''; width: 6px; height: 6px; background: #10b981; border-radius: 50%; display: inline-block; }
-
-        .btn-icon-danger {
-            background: #fee2e2; color: #ef4444; border: none; width: 36px; height: 36px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
-        }
-        .btn-icon-danger:hover { background: #fecaca; }
-
-        .chat-messages {
-            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
-        }
-
-        .message-wrapper {
-            display: flex; flex-direction: column; max-width: 75%;
-        }
-        .message-wrapper.incoming { align-self: flex-start; }
-        .message-wrapper.outgoing { align-self: flex-end; }
-
-        .message-bubble {
-            padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.4; word-break: break-word;
-        }
-        .incoming .message-bubble { background: white; color: var(--text-main); border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-        .outgoing .message-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
-
-        .message-sender { font-size: 11px; font-weight: 600; margin-bottom: 3px; color: var(--text-muted); }
-        .outgoing .message-sender { text-align: right; color: rgba(255,255,255,0.8); }
-
-        .media-img { max-width: 200px; border-radius: 8px; margin-top: 5px; display: block; }
-        audio { max-width: 220px; height: 36px; margin-top: 5px; }
-
-        .chat-input-area {
-            background: white; padding: 12px 16px; display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--border);
-        }
-
-        .chat-input-area input[type="text"] {
-            flex: 1; padding: 10px 16px; border: 1px solid var(--border); border-radius: 20px; outline: none; font-size: 14px; background: #f9fafb;
-        }
-        .chat-input-area input[type="text"]:focus { background: white; border-color: var(--primary); }
-
-        .action-btn {
-            background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; transition: 0.2s;
-        }
-        .action-btn:hover { background: #e5e7eb; color: var(--primary); }
-        .action-btn.recording { background: #fee2e2; color: #ef4444; animation: pulse 1.5s infinite; }
-
-        .btn-send {
-            background: var(--primary); color: white; border: none; width: 40px; height: 40px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
-        }
-        .btn-send:hover { background: var(--primary-hover); }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
+    <div class="app-container">
 
-    <!-- HALAMAN LOGIN -->
-    <div id="loginCard" class="auth-screen">
-        <div class="auth-header">
-            <div class="logo-icon"><i class="fa-solid fa-comments"></i></div>
-            <h2>Selamat Datang</h2>
-            <p>Masuk untuk mulai mengobrol di ruang publik</p>
-        </div>
-        <div class="input-group">
-            <label>Username</label>
-            <input type="text" id="loginUser" placeholder="Masukkan username Anda">
-        </div>
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" id="loginPass" placeholder="••••••••">
-        </div>
-        <button class="btn-primary" onclick="login()">Masuk Sekarang</button>
-        <div class="auth-footer">
-            Belum punya akun? <span onclick="switchView('registerCard')">Daftar</span>
-        </div>
-        <div class="auth-footer" style="margin-top: 10px;">
-            <span onclick="switchView('forgotCard')" style="font-size: 13px; color: var(--text-muted);">Lupa Password?</span>
-        </div>
-    </div>
-
-    <!-- HALAMAN REGISTRASI -->
-    <div id="registerCard" class="auth-screen hidden">
-        <div class="auth-header">
-            <div class="logo-icon"><i class="fa-solid fa-user-plus"></i></div>
-            <h2>Buat Akun</h2>
-            <p>Daftar cepat dan nikmati fitur chat bebas</p>
-        </div>
-        <div class="input-group">
-            <label>Username</label>
-            <input type="text" id="regUser" placeholder="Pilih username unik">
-        </div>
-        <div class="input-group">
-            <label>Email Pemulihan</label>
-            <input type="email" id="regEmail" placeholder="nama@email.com">
-        </div>
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" id="regPass" placeholder="Buat password aman">
-        </div>
-        <button class="btn-primary" onclick="register()">Daftar Akun</button>
-        <div class="auth-footer">
-            Sudah punya akun? <span onclick="switchView('loginCard')">Masuk</span>
-        </div>
-    </div>
-
-    <!-- HALAMAN LUPA PASSWORD -->
-    <div id="forgotCard" class="auth-screen hidden">
-        <div class="auth-header">
-            <div class="logo-icon"><i class="fa-solid fa-key"></i></div>
-            <h2>Pulihkan Akun</h2>
-            <p>Masukkan data akun Anda untuk melihat password</p>
-        </div>
-        <div class="input-group">
-            <label>Username</label>
-            <input type="text" id="forgotUser" placeholder="Username Anda">
-        </div>
-        <div class="input-group">
-            <label>Email Terdaftar</label>
-            <input type="email" id="forgotEmail" placeholder="nama@email.com">
-        </div>
-        <button class="btn-primary" onclick="forgotPassword()">Cek Password</button>
-        <div class="auth-footer" style="margin-top: 20px;">
-            Kembali ke <span onclick="switchView('loginCard')">Masuk</span>
-        </div>
-    </div>
-
-    <!-- HALAMAN ROOM CHAT -->
-    <div id="chatSection">
-        <div class="chat-header">
-            <div class="user-profile">
-                <div class="avatar" id="userAvatar">U</div>
-                <div class="user-info">
-                    <h4 id="roomUsername">Nama User</h4>
-                    <p>Online</p>
+        <!-- KARTU PENDAFTARAN (REGISTER) -->
+        <div id="registerCard" class="card">
+            <h2>Daftar Akun Baru</h2>
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="input-group">
+                    <label for="regUser">Username</label>
+                    <input type="text" id="regUser" name="username" placeholder="Masukkan username" required>
                 </div>
+                
+                <div class="input-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" name="email" placeholder="Masukkan email" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="regPass">Password</label>
+                    <input type="password" id="regPass" name="password" placeholder="Buat password" required>
+                </div>
+                
+                <button type="submit" class="btn-primary" id="submitBtn">Daftar Sekarang</button>
+            </form>
+
+            <div class="card-footer">
+                <span>Sudah punya akun? <a href="#" onclick="switchView('loginCard'); return false;">Masuk di sini</a></span>
             </div>
-            <button class="btn-icon-danger" onclick="logout()" title="Keluar"><i class="fa-solid fa-right-from-bracket"></i></button>
         </div>
-        
-        <div id="chatBox" class="chat-messages"></div>
-        
-        <div class="chat-input-area">
-            <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="sendImage()">
-            <button class="action-btn" onclick="document.getElementById('imageInput').click()" title="Kirim Gambar"><i class="fa-regular fa-image"></i></button>
-            <button class="action-btn" id="recordBtn" onclick="toggleRecord()" title="Rekam Suara"><i class="fa-solid fa-microphone"></i></button>
-            <input type="text" id="messageInput" placeholder="Ketik pesan..." onkeypress="if(event.key === 'Enter') sendText()">
-            <button class="btn-send" onclick="sendText()"><i class="fa-solid fa-paper-plane"></i></button>
+
+        <!-- KARTU LOGIN (Opsional jika ingin dipakai nanti) -->
+        <div id="loginCard" class="card" style="display: none;">
+            <h2>Masuk</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label for="logEmail">Email</label>
+                    <input type="email" id="logEmail" name="email" placeholder="Masukkan email" required>
+                </div>
+                <div class="input-group">
+                    <label for="logPass">Password</label>
+                    <input type="password" id="logPass" name="password" placeholder="Masukkan password" required>
+                </div>
+                <button type="submit" class="btn-primary">Masuk</button>
+            </form>
+            <div class="card-footer">
+                <span>Belum punya akun? <a href="#" onclick="switchView('registerCard'); return false;">Daftar</a></span>
+            </div>
         </div>
+
     </div>
 
-</div>
-
-<script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby6V_-C_J69ntciI1o0WNyysW15QjLKnrnRdS0bb0sFgxRVrY-ZDDAi2Ur-k-2H95-q/exec";
-
-    let currentUser = "";
-    let chatInterval = null;
-    let mediaRecorder;
-    let audioChunks = [];
-    let isRecording = false;
-
-    function switchView(viewId) {
-        document.getElementById('loginCard').classList.add('hidden');
-        document.getElementById('registerCard').classList.add('hidden');
-        document.getElementById('forgotCard').classList.add('hidden');
-        document.getElementById('chatSection').style.display = 'none';
-        
-        if(viewId === 'chatSection') {
-            document.getElementById('chatSection').style.display = 'flex';
-        } else {
-            document.getElementById(viewId).classList.remove('hidden');
+    <script>
+        // Fungsi untuk mengganti tampilan antar kartu (Form Register <-> Login)
+        function switchView(cardId) {
+            document.getElementById('registerCard').style.display = 'none';
+            document.getElementById('loginCard').style.display = 'none';
+            document.getElementById(cardId).style.display = 'block';
         }
-    }
 
-    function callAPI(payload, callback) {
-        fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(data => callback(data))
-        .catch(err => alert("Terjadi kesalahan jaringan: " + err));
-    }
+        // Fungsi Menangani Pendaftaran dan Mengirim ke Google Apps Script
+        function handleRegister(event) {
+            event.preventDefault(); // Mencegah reload halaman secara bawaan
 
-    function login() {
-        const username = document.getElementById('loginUser').value.trim();
-        const password = document.getElementById('loginPass').value;
-        if (!username || !password) return alert("Harap isi semua kolom!");
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = 'Memproses...';
+            btn.disabled = true;
 
-        callAPI({ action: "login", username, password }, res => {
-            if (res.result === "success") {
-                currentUser = res.username;
-                document.getElementById('roomUsername').innerText = currentUser;
-                document.getElementById('userAvatar').innerText = currentUser.charAt(0).toUpperCase();
-                
-                switchView('chatSection');
-                fetchChats();
-                chatInterval = setInterval(fetchChats, 4000);
-            } else {
-                alert(res.message);
-            }
-        });
-    }
-
-    function register() {
-        const username = document.getElementById('regUser').value.trim();
-        const email = document.getElementById('regEmail').value.trim();
-        const password = document.getElementById('regPass').value;
-        if (!username || !email || !password) return alert("Harap isi semua kolom!");
-
-        callAPI({ action: "register", username, email, password }, res => {
-            alert(res.message);
-            if (res.result === "success") switchView('loginCard');
-        });
-    }
-
-    function forgotPassword() {
-        const username = document.getElementById('forgotUser').value.trim();
-        const email = document.getElementById('forgotEmail').value.trim();
-        if (!username || !email) return alert("Harap isi semua kolom!");
-
-        callAPI({ action: "forgot", username, email }, res => {
-            alert(res.message);
-            if (res.result === "success") switchView('loginCard');
-        });
-    }
-
-    function logout() {
-        currentUser = "";
-        clearInterval(chatInterval);
-        switchView('loginCard');
-        document.getElementById('loginUser').value = "";
-        document.getElementById('loginPass').value = "";
-    }
-
-    function fetchChats() {
-        fetch(SCRIPT_URL + "?action=get_chats")
-        .then(res => res.json())
-        .then(data => {
-            const chatBox = document.getElementById("chatBox");
-            const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 100;
+            const form = document.getElementById('registerForm');
+            const formData = new FormData(form);
             
-            chatBox.innerHTML = "";
-            data.forEach(item => {
-                let isOut = item.sender === currentUser;
-                let wrapper = document.createElement("div");
-                wrapper.className = "message-wrapper " + (isOut ? "outgoing" : "incoming");
-                
-                let htmlContent = `<div class="message-sender">${item.sender}</div>`;
-                htmlContent += `<div class="message-bubble">`;
-                
-                if (item.type === "text") {
-                    htmlContent += item.message;
-                } else if (item.type === "image") {
-                    htmlContent += `<img src="${item.mediaUrl}" class="media-img">`;
-                } else if (item.type === "audio") {
-                    htmlContent += `<audio controls src="${item.mediaUrl}"></audio>`;
-                }
-                htmlContent += `</div>`;
-                
-                wrapper.innerHTML = htmlContent;
-                chatBox.appendChild(wrapper);
+            // Konversi data form agar bisa dibaca dengan lancar oleh Google Apps Script
+            const data = new URLSearchParams();
+            for (const pair of formData.entries()) {
+                data.append(pair[0], pair[1]);
+            }
+            data.append('action', 'register'); // Penanda aksi di Apps Script
+
+            // URL Endpoint Google Apps Script Anda yang terbaru
+            const scriptURL = 'https://script.google.com/macros/s/AKfycby9T8Y82PS5w9TijNj3rJfUfWG_USC4LQyRr1vn29agMjo-tHzCWfFbT2kTeZMPYTFs/exec';
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: data
+            })
+            .then(response => response.text())
+            .then(result => {
+                alert('Pendaftaran Berhasil! Silakan masuk.');
+                form.reset();
+                switchView('loginCard'); // Pindah otomatis ke halaman login
+            })
+            .catch(error => {
+                console.error('Error!', error);
+                alert('Terjadi kesalahan saat mendaftar. Coba beberapa saat lagi.');
+            })
+            .finally(() => {
+                btn.innerText = 'Daftar Sekarang';
+                btn.disabled = false;
             });
-            
-            if (isAtBottom) {
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-        });
-    }
-
-    function sendChatPayload(payload) {
-        callAPI(payload, () => {
-            document.getElementById("messageInput").value = "";
-            fetchChats();
-        });
-    }
-
-    function sendText() {
-        const message = document.getElementById("messageInput").value.trim();
-        if (!message) return;
-        sendChatPayload({ action: "send_chat", sender: currentUser, message, type: "text", mediaUrl: "" });
-    }
-
-    function sendImage() {
-        const file = document.getElementById("imageInput").files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            sendChatPayload({ action: "send_chat", sender: currentUser, message: "[Gambar]", type: "image", mediaUrl: e.target.result });
         }
-        reader.readAsDataURL(file);
-    }
 
-    async function toggleRecord() {
-        const recordBtn = document.getElementById("recordBtn");
-        if (!isRecording) {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                mediaRecorder.onstop = () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        sendChatPayload({ action: "send_chat", sender: currentUser, message: "[Voice Note]", type: "audio", mediaUrl: e.target.result });
-                    }
-                    reader.readAsDataURL(audioBlob);
-                };
-
-                mediaRecorder.start();
-                isRecording = true;
-                recordBtn.classList.add("recording");
-            } catch (err) {
-                alert("Gagal mengakses mikrofon.");
-            }
-        } else {
-            mediaRecorder.stop();
-            isRecording = false;
-            recordBtn.classList.remove("recording");
+        function handleLogin(event) {
+            event.preventDefault();
+            alert('Fitur login akan segera dihubungkan.');
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>
